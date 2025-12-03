@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  name       String?
-  password   String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  projects   Project[]
-  tasks      Task[]
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  projects  Project[]
+  tasks     Task[]
+  reminders Reminder[]
+  tags      Tag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Project {
@@ -25,10 +26,11 @@ model Project {
   description String?
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks       Task[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  tasks       Task[]
+  @@index([userId])
 }
 
 model Task {
@@ -41,6 +43,53 @@ model Task {
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   userId      Int
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reminders   Reminder[]
+  tags        TaskTag[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([userId])
+}
+
+model Reminder {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  dueDate     DateTime
+  status      String   @default("pending")
+  taskId      Int?
+  task        Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([taskId])
+  @@index([userId])
+}
+
+model Tag {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks     TaskTag[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, userId])
+  @@index([userId])
+}
+
+model TaskTag {
+  id        Int   @id @default(autoincrement())
+  taskId    Int
+  task      Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  tagId     Int
+  tag       Tag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, tagId])
+  @@index([tagId])
 }

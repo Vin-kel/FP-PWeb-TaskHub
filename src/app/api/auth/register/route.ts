@@ -1,38 +1,58 @@
-import { createUser, getUserByEmail } from '@/lib/auth'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, name, password } = await request.json()
+    const { email, name, password, confirmPassword } = await request.json();
 
-    if (!email || !name || !password) {
+    if (!email || !name || !password || !confirmPassword) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: "All fields are required" },
         { status: 400 }
-      )
+      );
     }
 
-    // Check if user exists
-    const existingUser = await getUserByEmail(email)
+    if (password !== confirmPassword) {
+      return NextResponse.json(
+        { error: "Passwords do not match" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User already exists' },
-        { status: 409 }
-      )
+        { error: "Email already registered" },
+        { status: 400 }
+      );
     }
 
-    // Create user
-    const user = await createUser(email, name, password)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name,
+        password: hashedPassword,
+      },
+    });
 
     return NextResponse.json(
-      { message: 'User created successfully', user: { id: user.id, email: user.email, name: user.name } },
+      {
+        message: "User created successfully",
+        user: { id: user.id, email: user.email, name: user.name },
+      },
       { status: 201 }
-    )
-  } catch (error) {
-    console.error('Register error:', error)
+    );
+  } catch (err) {
+    console.error("Register error:", err);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: "Internal server error" },
       { status: 500 }
-    )
+    );
   }
 }

@@ -82,7 +82,7 @@ export default function RegisterPage() {
         <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
           Create Account
         </h1>
-        <p className="text-center text-gray-600 mb-6">Join TaskFlow today</p>
+        <p className="text-center text-gray-600 mb-6">Join TaskHub today</p>
 
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded text-sm">

@@ -59,7 +59,7 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
                 <div className="bg-white rounded-lg shadow-md p-8">
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-                    <p className="text-gray-600 mb-6">Sign in to your TaskFlow account</p>
+                    <p className="text-gray-600 mb-6">Sign in to your TaskHub account</p>
 
                     {registered && (
                         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-4">
